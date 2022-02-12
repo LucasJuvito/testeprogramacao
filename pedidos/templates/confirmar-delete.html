@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atenção</title>
+</head>
+<body>
+    <section class="content">
+        <form method="post">
+            {% csrf_token %}
+            <h2>Você realmente quer apagar o pedido?</h2>
+            <p>id: {{ pedido.id }}</p>
+            <p>cliente: {{ pedido.cliente }}</p>
+            <p>produto: {{ pedido.produto }}</p>
+            <p>valor: {{ pedido.valor }}</p>
+            {% if pedido.entregue  %}
+                <p>Entregue</p>
+            {% else %}
+                <p>não entregado</p>
+            {% endif %}
+            <button type="submit">APAGAR</button>
+        </form>
+    </section>  
+</body>
+
+<style type="text/css">
+    body{
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center;
+    }
+    
+    .content{
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        width: 60%;
+    }
+    
+    .botao{
+        text-decoration: none;
+        color:black;
+        padding: 5px 10px;
+        border: 1px solid black;
+        border-radius: 10px;
+        background-color: rgb(211, 211, 211);
+    }
+
+    .botao:hover{
+        background-color: rgb(39, 39, 39);
+        color: white;
+        font-weight: 400;
+    }
+
+    label{
+        color: black;
+        position: relative;
+    }
+
+    input {
+        outline: none;
+    }
+
+    input:not([type="checkbox"]){
+        width: 95%;
+        margin: 4px 0px;
+        padding: 10px;  
+        border: 1px solid #b2b2b2;
+        border-radius: 3px;
+        
+    }
+
+    button[type="submit"]{
+        cursor: pointer;
+        text-decoration: none;
+        color:black;
+        padding: 5px 10px;
+        border: 1px solid black;
+        border-radius: 10px;
+        background-color: rgb(211, 211, 211);
+    }
+    button[type="submit"]:hover{
+        background-color: rgb(39, 39, 39);
+        color: white;
+        font-weight: 400;
+    }
+
+</style>
+
+</html>

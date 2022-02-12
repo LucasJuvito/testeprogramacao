@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+</head>
+<body>
+    <section class="content" >
+        <h1>Pedidos</h1>
+        <a href="{% url 'criar_pedido' %}" class="botao"> Novo Pedido </a>
+            <ul class="lista" >
+                {% for pedido in pedidos %}
+                    <a href="{% url 'atualizar_pedido' pedido.id %}" class="item">
+                        <li>
+                            <p>id: {{ pedido.id }}</p>
+                            <p>{{ pedido.cliente }}</p>
+                            <p>{{ pedido.produto }}</p>
+                            <p>R$ {{ pedido.valor }}</p>
+                            {% if pedido.entregue  %}
+                                <p>Entregue</p>
+                            {% else %}
+                                <p>Não entregue</p>
+                            {% endif %}
+                        </li>
+                    </a>
+                {% endfor %}
+            </ul>
+        <a href="{% url 'criar_pedido' %}" class="botao"> Novo Pedido </a>
+    </section>
+</body>
+
+<style type="text/css">
+body{
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.content{
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    width: 80%;
+}
+
+.lista{
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center; list-style-type: none;
+}
+
+.lista .item{
+    text-decoration: none; color:black; margin: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: auto; padding: 10px; border: 1px solid black; border-radius: 5px;
+}
+.lista .item li{
+    list-style-type: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.lista .item li p{
+    margin: 5px 0px;
+}
+.botao{
+    text-decoration: none;
+    color:black;
+    padding: 5px 10px;
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: rgb(211, 211, 211);
+}
+.botao:hover{
+        background-color: rgb(39, 39, 39);
+        color: white;
+        font-weight: 400;
+    }
+</style>
+
+</html>
