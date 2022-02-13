@@ -2,9 +2,12 @@ from itertools import product
 from django.shortcuts import render, redirect
 from django.http import Http404
 from django.db.models import Sum, Count
+from django.core import serializers
+from django.forms.models import model_to_dict
+import json
+
 from .models import Pedido
 from .forms import PedidoForm
-import json
 
 # Create your views here.
 """ class Manipularjson:
@@ -37,6 +40,21 @@ import json
         return self.__class__.pedidos
  """
 def listar_pedidos(request):
+    import os
+    module_dir = os.path.dirname(__file__)  # get current directory
+    file_path = os.path.join(module_dir, 'pedidos.json')
+    
+    f = open(file_path, 'r')    #abrir json
+    data = f.read()             #ler json
+    f.close()
+    data = json.loads(data)     #transferir para o formato de dicionário
+    data = data['pedidos']      #pegar somente os pedidos
+    
+    for i in data:           #para cada pedido criar um objeto
+        if i != None:
+            pedido = Pedido(**i)
+            pedido.save()
+
     pedidos = Pedido.objects.all()
 
     return render(request, 'pedidos.html', {'pedidos': pedidos})
