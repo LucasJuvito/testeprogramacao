@@ -67,12 +67,23 @@ class Manipularjson:
         data = Pedido.objects.get(id=id)                        #pega o último objeto salvo de Pedido
         data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeo em um dicionário
 
-        nextIdG += 1
         for i, item in enumerate(pedidosG):
             if item["id"] == id:
                 pedidosG[i] = data #adiciona na lista de pedidos
                 break
         #self.escrever() #chama a função para escrever no jason    
+
+    def apagar(id):
+        global nextIdG, pedidosG, json_fileG
+        data = Pedido.objects.get(id=id)                        #pega o último objeto salvo de Pedido
+        data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeo em um dicionário
+
+        for i, item in enumerate(pedidosG):
+            if item["id"] == id:
+                pedidosG.pop(i) #adiciona na lista de pedidos
+                break
+        #self.escrever() #chama a função para escrever no jason    
+    
 
     def getNextId(self):
         return self.nextId
@@ -119,7 +130,7 @@ def atualizar_pedido(request, id):
             Manipularjson.atualizar(id)
             Manipularjson.escrever()
         except:
-           raise Http404(f"Não foi possível atualizar o pedido")
+           raise Http404("Não foi possível atualizar o pedido")
         return redirect('listar_pedidos')
         
 
@@ -133,7 +144,13 @@ def apagar_pedido(request, id):
         
 
     if request.method == 'POST':
-        pedido.delete()
+        try:
+            Manipularjson.apagar(id)
+            Manipularjson.escrever()
+            pedido.delete()
+        except:
+            raise Http404("Não foi possível apagar o pedido")
+        
         return redirect('listar_pedidos')
 
     return render(request, 'confirmar-delete.html', {'pedido': pedido})
