@@ -9,38 +9,20 @@
 <body>
     <header>
         <a style="width: 20%; margin: 0 50px;" href="{% url 'listar_pedidos' %}">Delivery-API</a>
-        <div style="display: flex; width: 40%; justify-content: space-evenly;">
-            <a href="{% url 'criar_pedido' %}" class="botao"> Novo Pedido </a>
-            <a href="{% url 'mais_vendidos' %}" class="botao"> Mais vendidos </a>
-        </div>
-    </header>
-
-    <section class="content" >
-        <h1>Pedidos</h1>
         
+    </header>
+    <section class="content" >
+        <h1>Produtos</h1>
             <ul class="lista" >
                 {% for pedido in pedidos %}
-                    <a href="{% url 'atualizar_pedido' pedido.id %}" class="item">
+                    <a href="{% url 'valor_total_por_produto' pedido.produto %}" class="item">
                         <li>
-                            <p>id: {{ pedido.id }}</p>
-                            <p>{{ pedido.cliente }}</p>
                             <p>{{ pedido.produto }}</p>
-                            <p>R$ {{ pedido.valor }}</p>
-                            {% if pedido.entregue  %}
-                                <p>Entregue</p>
-                            {% else %}
-                                <p>Não entregue</p>
-                            {% endif %}
-                            <p>{{ pedido.timestamp }}</p>
+                            <p>vendidos: {{ pedido.pcount }}</p>
                         </li>
                     </a>
                 {% endfor %}
             </ul>
-            <div style="display: flex; width: 100%; justify-content: space-evenly;">
-                <a href="{% url 'criar_pedido' %}" class="botao"> Novo Pedido </a>
-                <a href="{% url 'mais_vendidos' %}" class="botao"> Mais vendidos </a>
-            </div>
-        
             
     </section>
 </body>
@@ -54,7 +36,6 @@ header{
     align-items: center;
     border-bottom: 1px solid black;
 }
-
 .busca-cliente{
             display: flex ;
             justify-content: right;
@@ -67,7 +48,7 @@ body{
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    justify-content: space-around;
+    justify-content: center;
 }
 
 .content{

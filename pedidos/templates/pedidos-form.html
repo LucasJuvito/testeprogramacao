@@ -7,6 +7,10 @@
     <title>Atualizar/Criar Produto</title>
 </head>
 <body>
+    <header>
+        <a style="width: 20%; margin: 0 50px;" href="{% url 'listar_pedidos' %}">Delivery-API</a>
+        
+    </header>
     <section class="content">
         <h1>Atualizar/Criar Produto </h1>
         <form method="POST">
@@ -16,11 +20,24 @@
         </form>
         {% if pedido %}
             <a href="{% url 'apagar_pedido' pedido.id %}" class="botao">Apagar</a>
-        {% endif %}
+            <br>
+            <a href="{% url 'valor_total_por_cliente' pedido.cliente %}" class="botao">Buscar pedidos deste cliente</a>
+            <br>
+            <a href="{% url 'valor_total_por_produto' pedido.produto %}" class="botao">Buscar pedidos com esse produto</a>
+            
+            {% endif %}
     </section>
 </body>
 
 <style type="text/css">
+    header{
+    display: flex;
+    width: 100%;
+    height: 50px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+}
     body{
         display: flex; 
         flex-direction: column; 

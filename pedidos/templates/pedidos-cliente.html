@@ -9,21 +9,17 @@
 <body>
     <header>
         <a style="width: 20%; margin: 0 50px;" href="{% url 'listar_pedidos' %}">Delivery-API</a>
-        <div style="display: flex; width: 40%; justify-content: space-evenly;">
-            <a href="{% url 'criar_pedido' %}" class="botao"> Novo Pedido </a>
-            <a href="{% url 'mais_vendidos' %}" class="botao"> Mais vendidos </a>
-        </div>
-    </header>
-
-    <section class="content" >
-        <h1>Pedidos</h1>
         
+    </header>
+    <section class="content" >
+        <h1>Pedidos de {{ cliente }} </h1>
+        <h1>Total de pedidos: {{contador}} </h1>
+        <h1>Valor total de pedidos entregues: R$ {{valor}} </h1>
             <ul class="lista" >
                 {% for pedido in pedidos %}
                     <a href="{% url 'atualizar_pedido' pedido.id %}" class="item">
                         <li>
                             <p>id: {{ pedido.id }}</p>
-                            <p>{{ pedido.cliente }}</p>
                             <p>{{ pedido.produto }}</p>
                             <p>R$ {{ pedido.valor }}</p>
                             {% if pedido.entregue  %}
@@ -36,17 +32,11 @@
                     </a>
                 {% endfor %}
             </ul>
-            <div style="display: flex; width: 100%; justify-content: space-evenly;">
-                <a href="{% url 'criar_pedido' %}" class="botao"> Novo Pedido </a>
-                <a href="{% url 'mais_vendidos' %}" class="botao"> Mais vendidos </a>
-            </div>
-        
-            
     </section>
 </body>
 
 <style type="text/css">
-header{
+    header{
     display: flex;
     width: 100%;
     height: 50px;
@@ -54,20 +44,11 @@ header{
     align-items: center;
     border-bottom: 1px solid black;
 }
-
-.busca-cliente{
-            display: flex ;
-            justify-content: right;
-            }
-            .busca-cliente input{
-            margin-right: 3px;
-            }
-
 body{
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    justify-content: space-around;
+    justify-content: center;
 }
 
 .content{
