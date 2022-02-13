@@ -163,11 +163,12 @@ def valor_total_por_cliente(request, cliente):
 
     contador = pedidos.count()
     valor = pedidos.filter(entregue=True)
+    contador_entregue = valor.count()
     valor = valor.aggregate(Sum('valor'))['valor__sum']
     if valor == None:
         valor = 0
 
-    return render(request, 'pedidos-cliente.html', {'pedidos': pedidos, 'contador': contador, 'valor':valor, 'cliente':cliente})
+    return render(request, 'pedidos-cliente.html', {'pedidos': pedidos, 'contador': contador, 'contador_entregue': contador_entregue, 'valor':valor, 'cliente':cliente})
 
 def valor_total_por_produto(request, produto):
     try:
@@ -177,11 +178,12 @@ def valor_total_por_produto(request, produto):
 
     contador = pedidos.count()
     valor = pedidos.filter(entregue=True)
+    contador_entregue = valor.count()
     valor = valor.aggregate(Sum('valor'))['valor__sum']
     if valor == None:
         valor = 0
 
-    return render(request, 'pedidos-produto.html', {'pedidos': pedidos, 'contador': contador, 'valor':valor, 'produto':produto})
+    return render(request, 'pedidos-produto.html', {'pedidos': pedidos, 'contador': contador, 'contador_entregue': contador_entregue, 'valor':valor, 'produto':produto})
 
 def mais_vendidos(request):
     pedidos = Pedido.objects.values('produto')
