@@ -6,80 +6,89 @@ from django.core import serializers
 from django.forms.models import model_to_dict
 import json
 import os
+from datetime import date, datetime
 
 from .models import Pedido
 from .forms import PedidoForm
 
+nextIdG = 0
+pedidosG = []
+json_fileG = None
+file_pathG = ''
+
 # Create your views here.
 class Manipularjson:
     def __init__(self):
-        module_dir = os.path.dirname(__file__)  # get current directory
-        file_path = os.path.join(module_dir, 'pedidos.json')
-    
-        f = open(file_path, 'r')    #abrir json
+        global nextIdG, pedidosG, file_pathG
+        self.module_dir = os.path.dirname(__file__)  # get current directory
+        self.file_path = os.path.join(self.module_dir, 'pedidos.json')
+        file_pathG = self.file_path
+
+        f = open(self.file_path, 'r')    #abrir json
         data = f.read()             #ler json
         f.close()
         data = json.loads(data)     #transferir para o formato de dicionário
-        self.nextId = data["nextId"]
-        self.pedidos = data["pedidos"]
+
+        nextIdG = data["nextId"]
+        pedidosG = data["pedidos"]
         
-        for i in self.pedidos:           #para cada pedido criar um objeto
+        for i in pedidosG:           #para cada pedido criar um objeto
             if i != None:
                 pedido = Pedido(**i)
                 pedido.save()
         
+    def escrever():
+        global nextIdG, pedidosG, json_fileG, file_pathG
+       
+        with open(file_pathG, 'w', encoding='utf8') as json_file:
+            json_file.write("{ \"nextId\": ")
+            json_file.write(f"{nextIdG}, ")
+            json_file.write("\"pedidos\": ")
 
-    # def escreverjson(self, data):
-    #     f = open(path, "w")
-    #     f.write(str(json.dumps(data)))
-    #     f.close
-    #     return data
+        with open(file_pathG, 'a', encoding='utf8') as json_file:
+            data = []
+            """ for i in pedidosG:
+                i["timestamp"] = datetime.fromtimestamp(i["timestamp"]) """
+            json.dump(pedidosG, json_file, ensure_ascii=False, default=str)
+            json_file.write("}") 
+
+    def adicionar():
+        global nextIdG, pedidosG, json_fileG
+        data = Pedido.objects.last()                            #pega o último objeto salvo de Pedido
+        data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeo em um dicionário
+
+        nextIdG += 1
+        pedidosG.append(data) #adiciona no final da lista de pedidos
+        #self.escrever() #chama a função para escrever no jason
 
     def getNextId(self):
-        return self.__class__.nextId
+        return self.nextId
 
     def getPedidos(self):
-        return self.__class__.pedidos
+        return self.pedidos
+
+
 
 def listar_pedidos(request):
-    """ module_dir = os.path.dirname(__file__)  # get current directory
-    file_path = os.path.join(module_dir, 'pedidos.json')
-    
-    f = open(file_path, 'r')    #abrir json
-    data = f.read()             #ler json
-    f.close()
-    data = json.loads(data)     #transferir para o formato de dicionário
-    data = data['pedidos']      #pegar somente os pedidos
-    
-    for i in data:           #para cada pedido criar um objeto
-        if i != None:
-            pedido = Pedido(**i)
-            pedido.save() """
-    
-    json_file = Manipularjson()
-
+    global json_fileG
+    json_fileG = Manipularjson()
     pedidos = Pedido.objects.all()
 
     return render(request, 'pedidos.html', {'pedidos': pedidos})
 
-from itertools import chain
-
-def to_dict(instance):
-    opts = instance._meta
-    data = {}
-    for f in chain(opts.concrete_fields, opts.private_fields):
-        data[f.name] = f.value_from_object(instance)
-    for f in opts.many_to_many:
-        data[f.name] = [i.id for i in f.value_from_object(instance)]
-    return data
-
 def criar_pedido(request):
+    global json_fileG
     form = PedidoForm(request.POST or None)
 
     if form.is_valid():
+        #try:
         form.save()
+        Manipularjson.adicionar()
+        Manipularjson.escrever()
+        #except:
+        #    raise Http404(f"Não foi possível criar o pedido")
 
-        module_dir = os.path.dirname(__file__)  # get current directory
+        """ module_dir = os.path.dirname(__file__)  # get current directory
         file_path = os.path.join(module_dir, 'pedidos.json')
     
         pedidos = Pedido.objects.all()
@@ -94,7 +103,7 @@ def criar_pedido(request):
 
         with open(file_path, 'a', encoding='utf8') as json_file:
             json.dump(data, json_file, ensure_ascii=False, default=str)
-            json_file.write("}")
+            json_file.write("}") """
         
         return redirect('listar_pedidos')
 
