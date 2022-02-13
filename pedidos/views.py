@@ -31,6 +31,7 @@ class Manipularjson:
 
         nextIdG = data["nextId"]
         pedidosG = data["pedidos"]
+
         
         for i in pedidosG:           #para cada pedido criar um objeto
             if i != None:
@@ -61,6 +62,18 @@ class Manipularjson:
         pedidosG.append(data) #adiciona no final da lista de pedidos
         #self.escrever() #chama a função para escrever no jason
 
+    def atualizar(id):
+        global nextIdG, pedidosG, json_fileG
+        data = Pedido.objects.get(id=id)                        #pega o último objeto salvo de Pedido
+        data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeo em um dicionário
+
+        nextIdG += 1
+        for i, item in enumerate(pedidosG):
+            if item["id"] == id:
+                pedidosG[i] = data #adiciona na lista de pedidos
+                break
+        #self.escrever() #chama a função para escrever no jason    
+
     def getNextId(self):
         return self.nextId
 
@@ -81,29 +94,12 @@ def criar_pedido(request):
     form = PedidoForm(request.POST or None)
 
     if form.is_valid():
-        #try:
-        form.save()
-        Manipularjson.adicionar()
-        Manipularjson.escrever()
-        #except:
-        #    raise Http404(f"Não foi possível criar o pedido")
-
-        """ module_dir = os.path.dirname(__file__)  # get current directory
-        file_path = os.path.join(module_dir, 'pedidos.json')
-    
-        pedidos = Pedido.objects.all()
-
-        data = []
-
-        for pedido in pedidos:
-            data.append(to_dict(pedido))
-
-        with open(file_path, 'w', encoding='utf8') as json_file:
-            json_file.write("{\"pedidos\": ")
-
-        with open(file_path, 'a', encoding='utf8') as json_file:
-            json.dump(data, json_file, ensure_ascii=False, default=str)
-            json_file.write("}") """
+        try:
+            form.save()
+            Manipularjson.adicionar()
+            Manipularjson.escrever()
+        except:
+           raise Http404(f"Não foi possível criar o pedido")
         
         return redirect('listar_pedidos')
 
@@ -118,8 +114,14 @@ def atualizar_pedido(request, id):
     form = PedidoForm(request.POST or None, instance=pedido)
 
     if form.is_valid():
-        form.save()
+        try:
+            form.save()
+            Manipularjson.atualizar(id)
+            Manipularjson.escrever()
+        except:
+           raise Http404(f"Não foi possível atualizar o pedido")
         return redirect('listar_pedidos')
+        
 
     return render(request, 'pedidos-form.html', {'form': form, 'pedido': pedido})
 
