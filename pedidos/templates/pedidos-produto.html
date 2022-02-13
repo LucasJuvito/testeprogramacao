@@ -7,6 +7,10 @@
     <title>Produtos</title>
 </head>
 <body>
+    <header>
+        <a style="width: 20%; margin: 0 50px;" href="{% url 'listar_pedidos' %}">Delivery-API</a>
+        
+    </header>
     <section class="content" >
         <h1>Pedidos com {{ produto }} </h1>
         <h1>Total de pedidos: {{contador}} </h1>
@@ -32,6 +36,14 @@
 </body>
 
 <style type="text/css">
+    header{
+    display: flex;
+    width: 100%;
+    height: 50px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+}
 body{
     display: flex; 
     flex-direction: column; 
