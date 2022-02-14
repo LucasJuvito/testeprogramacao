@@ -41,8 +41,11 @@ class Manipularjson:
     
     #função para escrever o json após alterações
     def escrever():
-        global nextIdG, pedidosG, json_fileG, file_pathG
+        global nextIdG, pedidosG, json_fileG
        
+        module_dir = os.path.dirname(__file__)                     # pega o diretório atual
+        file_pathG = os.path.join(module_dir, 'pedidos.json')  # salva o caminho do arquivo json
+        
         with open(file_pathG, 'w', encoding='utf8') as json_file:
             json_file.write("{ \"nextId\": ")
             json_file.write(f"{nextIdG}, ")
