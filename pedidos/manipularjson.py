@@ -56,6 +56,8 @@ class ManipularJson:
         data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeto em um dicionário
 
         for i, item in enumerate(self.pedidos):     #adiciona na lista de pedidos no local do antigo
+            if item == None:
+                continue
             if item["id"] == id:
                 self.pedidos[i] = data 
                 break
