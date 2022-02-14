@@ -10,100 +10,33 @@ from datetime import date, datetime
 
 from .models import Pedido
 from .forms import PedidoForm
+from .manipularjson import ManipularJson
 
-#variáveis globais para conseguir manipular o json
-
-nextIdG = 0
-pedidosG = []
-json_fileG = None
-file_pathG = ''
-
-# classe com funções para manipular o json
-class Manipularjson:
-    def __init__(self):
-        global nextIdG, pedidosG, file_pathG
-        self.module_dir = os.path.dirname(__file__)                     # pega o diretório atual
-        self.file_path = os.path.join(self.module_dir, 'pedidos.json')  # salva o caminho do arquivo json
-        file_pathG = self.file_path
-
-        f = open(self.file_path, 'r')   #abrir json
-        data = f.read()                 #ler json
-        f.close()
-        data = json.loads(data)         #transferir para o formato de dicionário
-
-        nextIdG = data["nextId"]
-        pedidosG = data["pedidos"]
-
-        for i in pedidosG:              #para cada pedido criar um objeto
-            if i != None:
-                pedido = Pedido(**i)
-                pedido.save()
-    
-    #função para escrever o json após alterações
-    def escrever():
-        global nextIdG, pedidosG, json_fileG
-       
-        module_dir = os.path.dirname(__file__)                     # pega o diretório atual
-        file_pathG = os.path.join(module_dir, 'pedidos.json')  # salva o caminho do arquivo json
-        
-        with open(file_pathG, 'w', encoding='utf8') as json_file:
-            json_file.write("{ \"nextId\": ")
-            json_file.write(f"{nextIdG}, ")
-            json_file.write("\"pedidos\": ")
-
-        with open(file_pathG, 'a', encoding='utf8') as json_file:
-            json.dump(pedidosG, json_file, ensure_ascii=False, default=str)
-            json_file.write("}") 
-
-    #função para adicionar novos pedidos na lista que irá para o json
-    def adicionar():
-        global nextIdG, pedidosG, json_fileG
-        data = Pedido.objects.last()                            #pega o último objeto salvo de Pedido
-        data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeto em um dicionário
-
-        nextIdG += 1            #incrementa o nextId
-        pedidosG.append(data)   #adiciona no final da lista de pedidos
-
-    #função para atualizar um pedido na lista de pedidos que irá para o json
-    def atualizar(id):
-        global nextIdG, pedidosG, json_fileG
-        data = Pedido.objects.get(id=id)                        #pega o objeto com id passado
-        data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeto em um dicionário
-
-        for i, item in enumerate(pedidosG):     #adiciona na lista de pedidos no local do antigo
-            if item["id"] == id:
-                pedidosG[i] = data 
-                break
-
-    #função para apagar um pedido na lista de pedidos que irá para o json
-    def apagar(id):
-        global nextIdG, pedidosG, json_fileG
-        data = Pedido.objects.get(id=id)                        #pega o objeto com id passado
-        data = Pedido.objects.filter(id=data.id).values()[0]    #transforma o objeto em um dicionário
-
-        for i, item in enumerate(pedidosG):     #Deleta da lista de pedidos
-            if item["id"] == id:
-                pedidosG.pop(i)
-                break
+manipulador = None
 
 #view que lista todos os pedidos
 def listar_pedidos(request):
-    global json_fileG
-    json_fileG = Manipularjson()
+    global manipulador
+    if manipulador is None:
+        manipulador = ManipularJson()
+    
     pedidos = Pedido.objects.all()
 
     return render(request, 'pedidos.html', {'pedidos': pedidos})
 
 #view que cria um novo pedido
 def criar_pedido(request):
-    global json_fileG
+    global manipulador
+    if manipulador is None:
+        manipulador = ManipularJson()
+    
     form = PedidoForm(request.POST or None)
 
     if form.is_valid():
         try:
             form.save()
-            Manipularjson.adicionar()
-            Manipularjson.escrever()
+            manipulador.adicionar()
+            manipulador.escrever()
         except:
            raise Http404(f"Não foi possível criar o pedido")
         
@@ -113,6 +46,10 @@ def criar_pedido(request):
 
 #view que atualiza um pedido já existente pelo seu id
 def atualizar_pedido(request, id):
+    global manipulador
+    if manipulador is None:
+        manipulador = ManipularJson()
+    
     try:
         pedido = Pedido.objects.get(id=id)
     except Pedido.DoesNotExist:
@@ -123,16 +60,21 @@ def atualizar_pedido(request, id):
     if form.is_valid():
         try:
             form.save()
-            Manipularjson.atualizar(id)
-            Manipularjson.escrever()
-        except:
-           raise Http404("Não foi possível atualizar o pedido")
+            manipulador.atualizar(id)
+            manipulador.escrever()
+        except Exception as e:
+            print(e)
+            raise Http404("Não foi possível atualizar o pedido")
         return redirect('listar_pedidos')
         
     return render(request, 'pedidos-form.html', {'form': form, 'pedido': pedido})
 
 #view que apaga um pedido existente pelo seu id
 def apagar_pedido(request, id):
+    global manipulador
+    if manipulador is None:
+        manipulador = ManipularJson()
+    
     try:
         pedido = Pedido.objects.get(id=id)
     except Pedido.DoesNotExist:
@@ -140,10 +82,14 @@ def apagar_pedido(request, id):
 
     if request.method == 'POST':
         try:
-            Manipularjson.apagar(id)
-            Manipularjson.escrever()
+            print("apagando")
+            manipulador.apagar(id)
+            print("escrevendo")
+            manipulador.escrever()
+            print("deletando")
             pedido.delete()
-        except:
+        except Exception as e:
+            print(e)
             raise Http404("Não foi possível apagar o pedido")
         
         return redirect('listar_pedidos')
